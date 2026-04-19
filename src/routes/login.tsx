@@ -7,6 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { HERO_IMAGE } from "@/data/events";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { useLanguage } from "@/context/LanguageContext";
 export const Route = createFileRoute("/login")({
   head: () => ({
     meta: [
@@ -26,6 +27,7 @@ interface FormErrors {
 }
 
 function LoginPage() {
+  const { t, isRTL } = useLanguage();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
@@ -41,15 +43,15 @@ function LoginPage() {
     const newErrors: FormErrors = {};
 
     if (!email.trim()) {
-      newErrors.email = "Email is required";
+      newErrors.email = t("auth.email") + " " + t("common.error").toLowerCase();
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      newErrors.email = "Please enter a valid email";
+      newErrors.email = t("auth.email") + " " + t("common.error").toLowerCase();
     }
 
     if (!password) {
-      newErrors.password = "Password is required";
+      newErrors.password = t("auth.password") + " " + t("common.error").toLowerCase();
     } else if (password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
+      newErrors.password = t("auth.password") + " " + t("common.error").toLowerCase();
     }
 
     setErrors(newErrors);
@@ -82,16 +84,16 @@ function LoginPage() {
 
   return (
     <AuthLayout
-      title="Welcome back"
-      subtitle="Sign in to your account to discover cultural events"
-      backgroundImage={HERO_IMAGE}
-    >
+        title={t("auth.signIn")}
+        subtitle={`${t("auth.dontHaveAccount")} ${t("auth.signInInstead").toLowerCase()}`}
+        backgroundImage={HERO_IMAGE}
+      >
       {submitSuccess ? (
         <div className="animate-fade-in rounded-lg border border-accent/20 bg-accent/10 p-4 text-center">
           <div className="mb-3 text-2xl">✓</div>
-          <h3 className="font-semibold text-accent">Welcome back!</h3>
+          <h3 className="font-semibold text-accent">{t("auth.success")}</h3>
           <p className="mt-1 text-sm text-muted-foreground">
-            Redirecting you to discover amazing events...
+            {t("common.loading")}...
           </p>
         </div>
       ) : (
@@ -99,14 +101,14 @@ function LoginPage() {
           {/* Email Field */}
           <div className="space-y-2">
             <label htmlFor="email" className="block text-sm font-medium text-foreground">
-              Email address
+              {t("auth.email")}
             </label>
             <div className="relative">
-              <Mail className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
+              <Mail className={`absolute ${isRTL ? "right-3" : "left-3"} top-3 h-5 w-5 text-muted-foreground`} />
               <Input
                 id="email"
                 type="email"
-                placeholder="you@example.com"
+                placeholder={t("auth.emailPlaceholder")}
                 value={email}
                 onChange={(e) => {
                   setEmail(e.target.value);
@@ -114,7 +116,7 @@ function LoginPage() {
                     setErrors({ ...errors, email: undefined });
                   }
                 }}
-                className={`pl-10 ${errors.email ? "border-destructive focus-visible:ring-destructive" : ""}`}
+                className={`${isRTL ? "pl-10 pr-3" : "pl-10 pr-10"} ${errors.email ? "border-destructive focus-visible:ring-destructive" : ""}`}
                 disabled={isLoading}
               />
             </div>
@@ -125,23 +127,23 @@ function LoginPage() {
 
           {/* Password Field */}
           <div className="space-y-2">
-            <div className="flex items-center justify-between">
+            <div className={`flex items-center ${isRTL ? "flex-row-reverse" : "justify-between"}`}>
               <label htmlFor="password" className="block text-sm font-medium text-foreground">
-                Password
+                {t("auth.password")}
               </label>
               <Link
                 to="/"
                 className="text-xs text-primary hover:underline transition-colors"
               >
-                Forgot password?
+                {t("auth.forgotPassword")}
               </Link>
             </div>
             <div className="relative">
-              <Lock className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
+              <Lock className={`absolute ${isRTL ? "right-3" : "left-3"} top-3 h-5 w-5 text-muted-foreground`} />
               <Input
                 id="password"
                 type={showPassword ? "text" : "password"}
-                placeholder="••••••••"
+                placeholder={t("auth.passwordPlaceholder")}
                 value={password}
                 onChange={(e) => {
                   setPassword(e.target.value);
@@ -149,13 +151,13 @@ function LoginPage() {
                     setErrors({ ...errors, password: undefined });
                   }
                 }}
-                className={`pl-10 pr-10 ${errors.password ? "border-destructive focus-visible:ring-destructive" : ""}`}
+                className={`${isRTL ? "pr-10 pl-3" : "pl-10 pr-10"} ${errors.password ? "border-destructive focus-visible:ring-destructive" : ""}`}
                 disabled={isLoading}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-3 text-muted-foreground hover:text-foreground transition-colors"
+                className={`absolute ${isRTL ? "left-3" : "right-3"} top-3 text-muted-foreground hover:text-foreground transition-colors`}
               >
                 {showPassword ? (
                   <EyeOff className="h-5 w-5" />
@@ -170,7 +172,7 @@ function LoginPage() {
           </div>
 
           {/* Remember Me */}
-          <div className="flex items-center space-x-2">
+          <div className={`flex items-center ${isRTL ? "flex-row-reverse" : "space-x-2"}`}>
             <Checkbox
               id="remember"
               checked={rememberMe}
@@ -181,9 +183,9 @@ function LoginPage() {
             />
             <label
               htmlFor="remember"
-              className="cursor-pointer text-sm text-foreground hover:text-primary transition-colors"
+              className={`cursor-pointer text-sm text-foreground hover:text-primary transition-colors ${isRTL ? "mr-2" : "ml-2"}`}
             >
-              Remember me
+              {t("auth.rememberMe")}
             </label>
           </div>
 
@@ -194,17 +196,17 @@ function LoginPage() {
             className="w-full rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-semibold transition-all duration-200 hover:shadow-lg hover:scale-105"
             disabled={isLoading}
           >
-            {isLoading ? "Signing in..." : "Sign in"}
+            {isLoading ? t("common.loading") + "..." : t("auth.signIn")}
           </Button>
 
           {/* Register Link */}
           <div className="text-center text-sm text-muted-foreground">
-            Don't have an account?{" "}
+            {t("auth.noAccount")} {" "}
             <Link
               to="/register"
               className="font-semibold text-primary hover:text-primary/90 transition-colors"
             >
-              Create one
+              {t("auth.createOne")}
             </Link>
           </div>
         </form>

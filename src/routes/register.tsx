@@ -7,6 +7,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { HERO_IMAGE } from "@/data/events";
 import { User, Mail, Lock, Eye, EyeOff, CheckCircle2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { useLanguage } from "@/context/LanguageContext";
 export const Route = createFileRoute("/register")({
   head: () => ({
     meta: [
@@ -34,6 +35,7 @@ interface PasswordStrength {
 }
 
 function RegisterPage() {
+  const { t, isRTL, language } = useLanguage();
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -58,11 +60,11 @@ function RegisterPage() {
     if (/[^A-Za-z0-9]/.test(pwd)) score++;
 
     const strengths: PasswordStrength[] = [
-      { score: 0, label: "Too weak", color: "text-destructive" },
-      { score: 1, label: "Weak", color: "text-destructive" },
+      { score: 0, label: t("common.error"), color: "text-destructive" },
+      { score: 1, label: t("common.error"), color: "text-destructive" },
       { score: 2, label: "Fair", color: "text-orange-500" },
       { score: 3, label: "Good", color: "text-amber-600" },
-      { score: 4, label: "Strong", color: "text-accent" },
+      { score: 4, label: t("common.success"), color: "text-accent" },
     ];
 
     return strengths[score] || strengths[0];
@@ -72,27 +74,27 @@ function RegisterPage() {
     const newErrors: FormErrors = {};
 
     if (!formData.name.trim()) {
-      newErrors.name = "Full name is required";
+      newErrors.name = t("auth.firstName") + " " + t("common.error").toLowerCase();
     } else if (formData.name.length < 2) {
-      newErrors.name = "Name must be at least 2 characters";
+      newErrors.name = t("auth.firstName") + " " + t("common.error").toLowerCase();
     }
 
     if (!formData.email.trim()) {
-      newErrors.email = "Email is required";
+      newErrors.email = t("auth.email") + " " + t("common.error").toLowerCase();
     } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = "Please enter a valid email";
+      newErrors.email = t("auth.email") + " " + t("common.error").toLowerCase();
     }
 
     if (!formData.password) {
-      newErrors.password = "Password is required";
+      newErrors.password = t("auth.password") + " " + t("common.error").toLowerCase();
     } else if (formData.password.length < 6) {
-      newErrors.password = "Password must be at least 6 characters";
+      newErrors.password = t("auth.password") + " " + t("common.error").toLowerCase();
     }
 
     if (!formData.confirmPassword) {
-      newErrors.confirmPassword = "Please confirm your password";
+      newErrors.confirmPassword = t("auth.passwordConfirm") + " " + t("common.error").toLowerCase();
     } else if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match";
+      newErrors.confirmPassword = t("auth.passwordConfirm") + " " + t("common.error").toLowerCase();
     }
 
     setErrors(newErrors);
@@ -148,8 +150,8 @@ function RegisterPage() {
 
   return (
     <AuthLayout
-      title="Join our community"
-      subtitle="Create an account to discover and book cultural events"
+      title={t("auth.createAccountAction")}
+      subtitle={t("auth.welcomeCommunity")}
       backgroundImage={HERO_IMAGE}
     >
       {submitSuccess ? (
@@ -158,9 +160,9 @@ function RegisterPage() {
             <div className="mb-4 flex justify-center">
               <CheckCircle2 className="h-12 w-12 text-accent animate-bounce" />
             </div>
-            <h3 className="text-lg font-semibold text-accent">Welcome to our community!</h3>
+            <h3 className="text-lg font-semibold text-accent">{t("auth.welcomeCommunity")}</h3>
             <p className="mt-2 text-sm text-muted-foreground">
-              Your account has been created successfully. Explore amazing cultural events now!
+              {t("auth.createAccountSuccess")}
             </p>
           </div>
         </div>
@@ -169,15 +171,15 @@ function RegisterPage() {
           {/* Full Name Field */}
           <div className="space-y-2">
             <label htmlFor="name" className="block text-sm font-medium text-foreground">
-              Full name
+              {t("auth.fullName")}
             </label>
             <div className="relative">
-              <User className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
+              <User className={`absolute ${isRTL ? "right-3" : "left-3"} top-3 h-5 w-5 text-muted-foreground`} />
               <Input
                 id="name"
                 name="name"
                 type="text"
-                placeholder="Amina Bennani"
+                placeholder={t("auth.fullName")}
                 value={formData.name}
                 onChange={handleInputChange}
                 className={`pl-10 ${errors.name ? "border-destructive focus-visible:ring-destructive" : ""}`}
@@ -192,15 +194,15 @@ function RegisterPage() {
           {/* Email Field */}
           <div className="space-y-2">
             <label htmlFor="email" className="block text-sm font-medium text-foreground">
-              Email address
+              {t("auth.email")}
             </label>
             <div className="relative">
-              <Mail className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
+              <Mail className={`absolute ${isRTL ? "right-3" : "left-3"} top-3 h-5 w-5 text-muted-foreground`} />
               <Input
                 id="email"
                 name="email"
                 type="email"
-                placeholder="you@example.com"
+                placeholder={t("auth.emailPlaceholder")}
                 value={formData.email}
                 onChange={handleInputChange}
                 className={`pl-10 ${errors.email ? "border-destructive focus-visible:ring-destructive" : ""}`}
@@ -215,15 +217,15 @@ function RegisterPage() {
           {/* Password Field */}
           <div className="space-y-2">
             <label htmlFor="password" className="block text-sm font-medium text-foreground">
-              Password
+              {t("auth.password")}
             </label>
             <div className="relative">
-              <Lock className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
+              <Lock className={`absolute ${isRTL ? "right-3" : "left-3"} top-3 h-5 w-5 text-muted-foreground`} />
               <Input
                 id="password"
                 name="password"
                 type={showPassword ? "text" : "password"}
-                placeholder="••••••••"
+                placeholder={t("auth.passwordPlaceholder")}
                 value={formData.password}
                 onChange={handleInputChange}
                 className={`pl-10 pr-10 ${errors.password ? "border-destructive focus-visible:ring-destructive" : ""}`}
@@ -266,15 +268,15 @@ function RegisterPage() {
           {/* Confirm Password Field */}
           <div className="space-y-2">
             <label htmlFor="confirmPassword" className="block text-sm font-medium text-foreground">
-              Confirm password
+              {t("auth.passwordConfirm")}
             </label>
             <div className="relative">
-              <Lock className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
+              <Lock className={`absolute ${isRTL ? "right-3" : "left-3"} top-3 h-5 w-5 text-muted-foreground`} />
               <Input
                 id="confirmPassword"
                 name="confirmPassword"
                 type={showConfirmPassword ? "text" : "password"}
-                placeholder="••••••••"
+                placeholder={t("auth.confirmPasswordPlaceholder")}
                 value={formData.confirmPassword}
                 onChange={handleInputChange}
                 className={`pl-10 pr-10 ${errors.confirmPassword ? "border-destructive focus-visible:ring-destructive" : ""}`}
@@ -307,13 +309,13 @@ function RegisterPage() {
               className="mt-1"
             />
             <label htmlFor="terms" className="cursor-pointer text-sm text-foreground">
-              I agree to the{" "}
+              {language === "AR" ? "أوافق على " : "I agree to the "}
               <a href="#" className="text-primary hover:underline">
-                terms and conditions
-              </a>{" "}
-              and{" "}
+                {language === "AR" ? "الشروط والأحكام" : "terms and conditions"}
+              </a>
+              {language === "AR" ? " و" : " and "}
               <a href="#" className="text-primary hover:underline">
-                privacy policy
+                {language === "AR" ? "سياسة الخصوصية" : "privacy policy"}
               </a>
             </label>
           </div>
@@ -325,17 +327,17 @@ function RegisterPage() {
             className="w-full rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground font-semibold transition-all duration-200 hover:shadow-lg hover:scale-105"
             disabled={isLoading || !agreeTerms}
           >
-            {isLoading ? "Creating account..." : "Create account"}
+            {isLoading ? t("common.loading") + "..." : t("auth.createAccountAction")}
           </Button>
 
           {/* Login Link */}
           <div className="text-center text-sm text-muted-foreground">
-            Already have an account?{" "}
+            {t("auth.haveAccount")} {" "}
             <Link
               to="/login"
               className="font-semibold text-primary hover:text-primary/90 transition-colors"
             >
-              Sign in
+              {t("auth.signIn")}
             </Link>
           </div>
         </form>

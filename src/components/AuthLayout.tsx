@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import { useLanguage } from "@/context/LanguageContext";
 
 interface AuthLayoutProps {
   children: ReactNode;
@@ -13,22 +14,24 @@ export function AuthLayout({
   title,
   subtitle,
 }: AuthLayoutProps) {
+  const { isRTL, t } = useLanguage();
+
   return (
     <div className="min-h-screen bg-background">
-      <div className="grid min-h-screen grid-cols-1 lg:grid-cols-2">
+      <div className={`grid min-h-screen grid-cols-1 lg:grid-cols-2 ${isRTL ? "lg:flex-row-reverse" : ""}`}>
         {/* LEFT: Form Section */}
-        <div className="flex flex-col items-center justify-center px-4 py-12 sm:px-6 lg:px-8">
-          <div className="w-full max-w-md animate-fade-in space-y-8">
+        <div className={`flex flex-col items-center justify-center px-4 py-12 sm:px-6 lg:px-8 ${isRTL ? "lg:order-2" : ""}`}>
+          <div className={`w-full max-w-md animate-fade-in space-y-8 ${isRTL ? "text-right" : "text-left"}`}>
             {/* Logo/Branding */}
-            <div className="text-center">
-              <div className="mx-auto mb-6 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-2xl">
+            <div className={`${isRTL ? "text-right" : "text-center"}`}>
+              <div className={`mx-auto mb-6 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-2xl ${isRTL ? "ml-auto mr-0" : ""}`}>
                 🎭
               </div>
               <h2 className="text-3xl font-bold tracking-tight text-foreground">
                 {title}
               </h2>
               {subtitle && (
-                <p className="mt-2 text-sm text-muted-foreground">{subtitle}</p>
+                <p className={`mt-2 text-sm text-muted-foreground ${isRTL ? "text-right" : ""}`}>{subtitle}</p>
               )}
             </div>
 
@@ -38,7 +41,7 @@ export function AuthLayout({
         </div>
 
         {/* RIGHT: Image Section (Hidden on Mobile) */}
-        <div className="relative hidden overflow-hidden lg:block">
+        <div className={`relative hidden overflow-hidden lg:block ${isRTL ? "lg:order-1" : ""}`}>
           <img
             src={backgroundImage}
             alt="Cultural background"
@@ -48,14 +51,14 @@ export function AuthLayout({
           <div className="absolute inset-0 bg-gradient-to-t from-primary/60 via-primary/40 to-primary/20" />
 
           {/* Decorative Content */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+          <div className={`absolute inset-0 flex flex-col items-center justify-center ${isRTL ? "text-right" : "text-center"}`}>
             <div className="max-w-md space-y-6 px-8">
               <div className="space-y-3">
                 <h3 className="font-display text-4xl font-semibold leading-tight text-primary-foreground">
-                  Join our cultural community
+                  {t("auth.signUp")}
                 </h3>
                 <p className="text-lg text-primary-foreground/90">
-                  Discover events, connect with artists, and explore the soul of Mediouna.
+                  {t("auth.dontHaveAccount")}
                 </p>
               </div>
 

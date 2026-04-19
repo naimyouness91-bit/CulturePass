@@ -10,7 +10,6 @@ const nav = [
   { to: "/map", label: "Map", icon: Map },
   { to: "/calendar", label: "Calendar", icon: Calendar },
   { to: "/dashboard", label: "My Bookings", icon: LayoutDashboard },
-  { to: "/admin", label: "Admin", icon: Shield },
 ] as const;
 
 export function Header() {
@@ -21,11 +20,11 @@ export function Header() {
   return (
     <header className="sticky top-0 z-40 border-b border-border/60 bg-background/85 backdrop-blur-lg">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-        <Logo />
+        <Logo compact />
 
         <nav className="hidden items-center gap-1 lg:flex">
           {nav.map((item) => {
-            const active = pathname === item.to || (item.to !== "/" && pathname.startsWith(item.to));
+            const active = pathname === item.to || pathname.startsWith(item.to);
             return (
               <Link
                 key={item.to}

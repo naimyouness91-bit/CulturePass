@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
+import { useLanguage } from "@/context/LanguageContext";
 import {
   addMonths,
   endOfMonth,
@@ -30,8 +31,41 @@ export const Route = createFileRoute("/calendar")({
 });
 
 function CalendarPage() {
+  const { t, language, isRTL } = useLanguage();
   const [cursor, setCursor] = useState(new Date(2025, 4, 1)); // May 2025
   const [selected, setSelected] = useState<Date>(new Date(2025, 4, 17));
+
+  const weekDays =
+    language === "AR"
+      ? ["الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت", "الأحد"]
+      : ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
+
+  const weekdayNames =
+    language === "AR"
+      ? ["الأحد", "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"]
+      : ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
+
+  const monthNames =
+    language === "AR"
+      ? ["يناير", "فبراير", "مارس", "أبريل", "ماي", "يونيو", "يوليوز", "غشت", "شتنبر", "أكتوبر", "نونبر", "دجنبر"]
+      : [
+          "Janvier",
+          "Février",
+          "Mars",
+          "Avril",
+          "Mai",
+          "Juin",
+          "Juillet",
+          "Août",
+          "Septembre",
+          "Octobre",
+          "Novembre",
+          "Décembre",
+        ];
+
+  const formattedMonth = `${monthNames[cursor.getMonth()]} ${cursor.getFullYear()}`;
+  const formattedSelectedDate = `${selected.getDate()} ${monthNames[selected.getMonth()]} ${selected.getFullYear()}`;
+  const selectedWeekday = weekdayNames[selected.getDay()];
 
   const monthStart = startOfMonth(cursor);
   const monthEnd = endOfMonth(cursor);
@@ -52,10 +86,10 @@ function CalendarPage() {
         <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
           <div>
             <h1 className="font-display text-3xl font-semibold text-foreground sm:text-4xl">
-              Cultural calendar
+              {t("calendar.title")}
             </h1>
             <p className="mt-2 text-muted-foreground">
-              Plan your weeks around the events that matter to you.
+              {t("calendar.subtitle")}
             </p>
           </div>
           <div className="flex items-center gap-2 rounded-full bg-card p-1.5 shadow-soft">
@@ -65,8 +99,11 @@ function CalendarPage() {
             >
               <ChevronLeft className="h-4 w-4" />
             </button>
-            <span className="min-w-[140px] text-center text-sm font-semibold text-foreground">
-              {format(cursor, "MMMM yyyy")}
+            <span
+              dir={language === "AR" ? "ltr" : undefined}
+              className="min-w-[140px] text-center text-sm font-semibold text-foreground"
+            >
+              {formattedMonth}
             </span>
             <button
               onClick={() => setCursor(addMonths(cursor, 1))}
@@ -81,7 +118,7 @@ function CalendarPage() {
           {/* CALENDAR GRID */}
           <div className="rounded-3xl bg-card p-4 shadow-card sm:p-6">
             <div className="grid grid-cols-7 gap-1 text-center text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-              {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"].map((d) => (
+              {weekDays.map((d) => (
                 <div key={d} className="py-2">
                   {d}
                 </div>
@@ -132,15 +169,18 @@ function CalendarPage() {
           {/* DAY DETAILS */}
           <aside className="rounded-3xl bg-card p-6 shadow-card">
             <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              {format(selected, "EEEE")}
+              {selectedWeekday}
             </p>
-            <h2 className="font-display text-2xl font-semibold text-foreground">
-              {format(selected, "d MMMM yyyy")}
+            <h2
+              dir={language === "AR" ? "ltr" : undefined}
+              className="font-display text-2xl font-semibold text-foreground"
+            >
+              {formattedSelectedDate}
             </h2>
             <div className="mt-5 space-y-3">
               {selectedEvents.length === 0 && (
                 <div className="rounded-2xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-                  No events scheduled. Pick another day from the calendar.
+                  {t("calendar.noEvents")}
                 </div>
               )}
               {selectedEvents.map((e) => (
@@ -161,7 +201,7 @@ function CalendarPage() {
               ))}
             </div>
             <Button variant="outline" className="mt-6 w-full rounded-full">
-              Subscribe to calendar
+              {t("calendar.subscribe")}
             </Button>
           </aside>
         </div>

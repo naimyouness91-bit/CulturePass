@@ -2,7 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Bell, Calendar, MapPin, QrCode, Settings, Ticket, User } from "lucide-react";
 import { SiteLayout } from "@/components/SiteLayout";
 import { Button } from "@/components/ui/button";
-import { events } from "@/data/events";
+import { events, categories } from "@/data/events";
+import { useLanguage } from "@/context/LanguageContext";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
@@ -17,7 +18,7 @@ export const Route = createFileRoute("/dashboard")({
 const myBookings = events.slice(0, 3).map((e, i) => ({
   ...e,
   bookingRef: `CP-${(2503 + i).toString().padStart(4, "0")}`,
-  status: i === 0 ? "Upcoming" : i === 1 ? "Upcoming" : "Past",
+  status: i === 0 ? "upcoming" : i === 1 ? "upcoming" : "past",
 }));
 
 const notifications = [
@@ -27,6 +28,43 @@ const notifications = [
 ];
 
 function DashboardPage() {
+  const { t, language, isRTL } = useLanguage();
+
+  const getCategoryLabel = (event: typeof events[number]) => {
+    const category = categories.find((cat) => cat.name === event.category);
+    return language === "AR" ? category?.labelAr ?? event.category : category?.labelFr ?? event.category;
+  };
+
+  const getEventTitle = (event: typeof events[number]) =>
+    language === "AR" ? event.titleAr ?? event.title : event.title;
+
+  const getEventVenue = (event: typeof events[number]) =>
+    language === "AR" ? event.venueAr ?? event.venue : event.venue;
+
+  const localizedNotifications = [
+    {
+      id: 1,
+      title: language === "AR" ? "تم تجهيز تذكرة QR الخاصة بك" : "Your QR pass is ready",
+      body: language === "AR" ? "مهرجان الطبوريدة الوطني — 12 يونيو" : "Festival National de Tbourida — 12 June",
+      time: language === "AR" ? "قبل ساعتين" : "2h ago",
+      unread: true,
+    },
+    {
+      id: 2,
+      title: language === "AR" ? "تم إضافة حدث جديد بالقرب منك" : "New event near you",
+      body: language === "AR" ? "أمسية غناوة في رياض الأندلس تمت إضافتها" : "Soirée Gnawa au Riad El Andalous added",
+      time: language === "AR" ? "بالأمس" : "Yesterday",
+      unread: true,
+    },
+    {
+      id: 3,
+      title: language === "AR" ? "تذكير" : "Reminder",
+      body: language === "AR" ? "المسرحية — أصوات الجنوب تبدأ بعد 3 أيام" : "Théâtre — Les Voix du Sud starts in 3 days",
+      time: language === "AR" ? "قبل 3 أيام" : "3 days ago",
+      unread: false,
+    },
+  ];
+
   return (
     <SiteLayout>
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
@@ -38,23 +76,23 @@ function DashboardPage() {
             </div>
             <div>
               <p className="text-xs uppercase tracking-[0.18em] text-primary-foreground/70">
-                Welcome back
+                {t("dashboard.welcomeBack")}
               </p>
               <h1 className="font-display text-2xl font-semibold sm:text-3xl">Yassine Amrani</h1>
               <p className="mt-1 text-sm text-primary-foreground/85">
-                Member since 2024 · {myBookings.length} bookings
+                {t("dashboard.memberSince")} 2024 · {myBookings.length} {language === "AR" ? "حجز" : "bookings"}
               </p>
             </div>
           </div>
           <Button variant="secondary" className="rounded-full">
-            <Settings className="mr-2 h-4 w-4" /> Edit profile
+            <Settings className="mr-2 h-4 w-4" /> {t("dashboard.editProfile")}
           </Button>
         </div>
 
         <div className="mt-8 grid gap-6 lg:grid-cols-[1fr_360px]">
           {/* BOOKINGS */}
           <section>
-            <h2 className="font-display text-2xl font-semibold text-foreground">My bookings</h2>
+            <h2 className="font-display text-2xl font-semibold text-foreground">{t("dashboard.myBookings")}</h2>
             <div className="mt-4 space-y-4">
               {myBookings.map((b) => (
                 <div
@@ -70,16 +108,16 @@ function DashboardPage() {
                     <div className="px-5 py-4 sm:px-2 sm:py-5">
                       <div className="flex items-center gap-2">
                         <span className="rounded-full bg-accent-soft px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-accent-foreground">
-                          {b.category}
+                          {getCategoryLabel(b)}
                         </span>
                         <span
                           className={`rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
-                            b.status === "Past"
+                            b.status === "past"
                               ? "bg-muted text-muted-foreground"
                               : "bg-primary/10 text-primary"
                           }`}
                         >
-                          {b.status}
+                          {b.status === "past" ? t("dashboard.statusPast") : t("dashboard.statusUpcoming")}
                         </span>
                       </div>
                       <Link
@@ -87,22 +125,22 @@ function DashboardPage() {
                         params={{ eventId: b.id }}
                         className="mt-2 block font-display text-lg font-semibold text-foreground hover:text-primary"
                       >
-                        {b.title}
+                        {getEventTitle(b)}
                       </Link>
                       <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
                         <span className="flex items-center gap-1.5">
                           <Calendar className="h-3.5 w-3.5" />
-                          {new Date(b.date).toLocaleDateString("en-GB", {
+                          {new Date(b.date).toLocaleDateString(language === "AR" ? "ar-SA" : "fr-FR", {
                             day: "numeric",
                             month: "short",
                             year: "numeric",
                           })}
                         </span>
                         <span className="flex items-center gap-1.5">
-                          <MapPin className="h-3.5 w-3.5" /> {b.venue}
+                          <MapPin className="h-3.5 w-3.5" /> {getEventVenue(b)}
                         </span>
                         <span className="flex items-center gap-1.5">
-                          <Ticket className="h-3.5 w-3.5" /> Ref {b.bookingRef}
+                          <Ticket className="h-3.5 w-3.5" /> {t("dashboard.bookingReference")} {b.bookingRef}
                         </span>
                       </div>
                     </div>
@@ -111,7 +149,7 @@ function DashboardPage() {
                         <QrPattern />
                       </div>
                       <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
-                        Scan at entry
+                        {t("dashboard.scanAtEntry")}
                       </span>
                     </div>
                   </div>
@@ -125,14 +163,14 @@ function DashboardPage() {
             <div className="rounded-3xl bg-card p-6 shadow-card">
               <div className="flex items-center justify-between">
                 <h2 className="flex items-center gap-2 font-display text-xl font-semibold text-foreground">
-                  <Bell className="h-5 w-5 text-primary" /> Notifications
+                  <Bell className="h-5 w-5 text-primary" /> {t("dashboard.notifications")}
                 </h2>
                 <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground">
-                  {notifications.filter((n) => n.unread).length}
+                  {localizedNotifications.filter((n) => n.unread).length}
                 </span>
               </div>
               <div className="mt-4 space-y-3">
-                {notifications.map((n) => (
+                {localizedNotifications.map((n) => (
                   <div
                     key={n.id}
                     className={`rounded-2xl border p-4 transition-smooth ${
@@ -156,19 +194,19 @@ function DashboardPage() {
 
             <div className="mt-4 rounded-3xl bg-card p-6 shadow-card">
               <h2 className="flex items-center gap-2 font-display text-xl font-semibold text-foreground">
-                <User className="h-5 w-5 text-primary" /> Profile
+                <User className="h-5 w-5 text-primary" /> {t("dashboard.profile")}
               </h2>
               <dl className="mt-4 space-y-3 text-sm">
                 <div className="flex justify-between">
-                  <dt className="text-muted-foreground">Email</dt>
+                  <dt className="text-muted-foreground">{t("dashboard.email")}</dt>
                   <dd className="font-medium text-foreground">y.amrani@example.ma</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-muted-foreground">Phone</dt>
+                  <dt className="text-muted-foreground">{t("dashboard.phone")}</dt>
                   <dd className="font-medium text-foreground">+212 6•• ••• 412</dd>
                 </div>
                 <div className="flex justify-between">
-                  <dt className="text-muted-foreground">City</dt>
+                  <dt className="text-muted-foreground">{t("dashboard.city")}</dt>
                   <dd className="font-medium text-foreground">Mediouna</dd>
                 </div>
               </dl>

@@ -2,7 +2,8 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Calendar, MapPin } from "lucide-react";
 import { SiteLayout } from "@/components/SiteLayout";
-import { events } from "@/data/events";
+import { events, categories } from "@/data/events";
+import { useLanguage } from "@/context/LanguageContext";
 
 export const Route = createFileRoute("/map")({
   head: () => ({
@@ -19,8 +20,26 @@ export const Route = createFileRoute("/map")({
 });
 
 function MapPage() {
+  const { t, language, isRTL } = useLanguage();
   const [Map, setMap] = useState<null | typeof import("react-leaflet")>(null);
   const [selected, setSelected] = useState(events[0].id);
+
+  const fmtDate = (iso: string) =>
+    new Date(iso).toLocaleDateString(language === "AR" ? "ar-SA" : "fr-FR", {
+      day: "numeric",
+      month: "short",
+    });
+
+  const getCategoryLabel = (event: typeof events[number]) => {
+    const category = categories.find((cat) => cat.name === event.category);
+    return language === "AR" ? category?.labelAr ?? event.category : category?.labelFr ?? event.category;
+  };
+
+  const getEventTitle = (event: typeof events[number]) =>
+    language === "AR" ? event.titleAr ?? event.title : event.title;
+
+  const getEventVenue = (event: typeof events[number]) =>
+    language === "AR" ? event.venueAr ?? event.venue : event.venue;
 
   useEffect(() => {
     let active = true;
@@ -41,18 +60,17 @@ function MapPage() {
     };
   }, []);
 
-  const fmtDate = (iso: string) =>
-    new Date(iso).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
-
   return (
     <SiteLayout>
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-6">
           <h1 className="font-display text-3xl font-semibold text-foreground sm:text-4xl">
-            Cultural map of Mediouna
+            {t("map.title")}
           </h1>
           <p className="mt-2 text-muted-foreground">
-            {events.length} events happening across the city — click a pin or a card to explore.
+            {language === "AR"
+              ? `${events.length} حدثًا يحدث عبر المدينة — انقر على دبوس أو بطاقة للاستكشاف.`
+              : `${events.length} events happening across the city — click a pin or a card to explore.`}
           </p>
         </div>
 
@@ -78,17 +96,17 @@ function MapPage() {
                   />
                   <div className="min-w-0 flex-1">
                     <span className="text-[10px] font-semibold uppercase tracking-wider text-accent">
-                      {event.category}
+                      {getCategoryLabel(event)}
                     </span>
                     <h3 className="mt-1 line-clamp-2 text-sm font-semibold text-foreground">
-                      {event.title}
+                      {getEventTitle(event)}
                     </h3>
                     <div className="mt-1.5 flex flex-col gap-0.5 text-xs text-muted-foreground">
                       <span className="flex items-center gap-1">
                         <Calendar className="h-3 w-3" /> {fmtDate(event.date)}
                       </span>
                       <span className="flex items-center gap-1 truncate">
-                        <MapPin className="h-3 w-3" /> {event.venue}
+                        <MapPin className="h-3 w-3" /> {getEventVenue(event)}
                       </span>
                     </div>
                   </div>
@@ -118,14 +136,14 @@ function MapPage() {
                   >
                     <Map.Popup>
                       <div className="space-y-1">
-                        <strong>{event.title}</strong>
-                        <div className="text-xs text-muted-foreground">{event.venue}</div>
+                        <strong>{getEventTitle(event)}</strong>
+                        <div className="text-xs text-muted-foreground">{getEventVenue(event)}</div>
                         <Link
                           to="/event/$eventId"
                           params={{ eventId: event.id }}
                           className="text-xs font-semibold text-primary underline"
                         >
-                          View details →
+                          {t("map.viewDetails")}
                         </Link>
                       </div>
                     </Map.Popup>
@@ -134,7 +152,7 @@ function MapPage() {
               </Map.MapContainer>
             ) : (
               <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-                Loading map…
+                {t("common.loading")}
               </div>
             )}
           </div>
