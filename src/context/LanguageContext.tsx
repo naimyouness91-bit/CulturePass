@@ -225,6 +225,8 @@ const translations: Record<Language, Record<string, string>> = {
     "home.searchPlaceholderWhat": "موسيقى، مهرجان، مسرح…",
     "home.searchPlaceholderWhen": "إضافة تاريخ",
     "home.search": "بحث",
+    "home.welcomeTitle": "مرحبًا بك في مديونة",
+    "home.welcomeSubtitle": "مدينة تجمع بين التقليد والحداثة. اكتشف بسهولة تاريخها وثقافتها وخدماتها في مكان واحد.",
 
     // Events
     "event.title": "الأحداث الثقافية",
@@ -382,7 +384,7 @@ const translations: Record<Language, Record<string, string>> = {
 };
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [language, setLanguageState] = useState<Language>("FR");
+  const [language, setLanguageState] = useState<Language>("AR");
 
   useEffect(() => {
     // Load language from localStorage on mount

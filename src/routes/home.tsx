@@ -75,6 +75,18 @@ function HomePage() {
               <p className="mt-6 max-w-xl text-base text-primary-foreground/90 sm:text-lg">
                 {t("home.heroSubtitle")}
               </p>
+
+              {/* Welcome Message */}
+              <div className="mt-8 max-w-2xl">
+                <div className="rounded-2xl bg-primary-foreground/10 backdrop-blur-sm border border-primary-foreground/20 p-6">
+                  <h2 className="font-display text-xl font-semibold text-primary-foreground mb-2">
+                    {t("home.welcomeTitle")}
+                  </h2>
+                  <p className="text-primary-foreground/90 leading-relaxed">
+                    {t("home.welcomeSubtitle")}
+                  </p>
+                </div>
+              </div>
             </div>
 
             <div className="mt-10 max-w-4xl animate-scale-in rounded-3xl bg-card p-3 shadow-elegant">

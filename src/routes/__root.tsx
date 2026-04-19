@@ -1,6 +1,10 @@
 import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import { AuthProvider } from "@/context/AuthContext";
 import { LanguageProvider } from "@/context/LanguageContext";
+import { NotificationProvider } from "@/context/NotificationContext";
+import { ChatbotProvider } from "@/context/ChatbotContext";
+import { ToastContainer } from "@/components/ToastContainer";
+import { ChatBot } from "@/components/ChatBot";
 import appCss from "../styles.css?url";
 
 function NotFoundComponent() {
@@ -85,10 +89,16 @@ function RootShell({ children }: { children: React.ReactNode }) {
 
 function RootComponent() {
   return (
-    <LanguageProvider>
-      <AuthProvider>
-        <Outlet />
-      </AuthProvider>
-    </LanguageProvider>
+    <ChatbotProvider>
+      <NotificationProvider>
+        <LanguageProvider>
+          <AuthProvider>
+            <Outlet />
+            <ToastContainer />
+            <ChatBot />
+          </AuthProvider>
+        </LanguageProvider>
+      </NotificationProvider>
+    </ChatbotProvider>
   );
 }
